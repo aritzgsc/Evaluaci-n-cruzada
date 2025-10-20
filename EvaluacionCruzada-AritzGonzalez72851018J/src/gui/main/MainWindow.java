@@ -4,11 +4,12 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import domain.Athlete;
 import domain.Athlete.Genre;
@@ -23,7 +24,7 @@ public class MainWindow extends JFrame {
 		
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setTitle("JJ.OO París 2024");
-		setSize(640, 480);
+		setSize(640, 300);
 		setLocationRelativeTo(null);
 		
 		// GUI.2 Creación de JList y JTabbedPane y añadir a la ventana
@@ -51,7 +52,7 @@ public class MainWindow extends JFrame {
 		
 		// Creación de los paneles a añadir
 		
-		JPanel panelDatos = new JPanel();
+		JPanel panelDatos = new JPanel(new BorderLayout());					// Ponemos BorderLayout por el GUI.9
 		JPanel panelMedallas = new JPanel();
 		
 		// Añadimos los paneles al JTabbedPane
@@ -124,11 +125,11 @@ public class MainWindow extends JFrame {
 		
 		List<Athlete> listaAtletas = new ArrayList<Athlete>();
 		
-		listaAtletas.add(new Athlete(1111111, "Atleta 1", Genre.MALE, "País 1", LocalDate.of(2000, 1, 1)));
-		listaAtletas.add(new Athlete(2222222, "Atleta 2", Genre.MALE, "País 2", LocalDate.of(2000, 1, 1)));
-		listaAtletas.add(new Athlete(3333333, "Atleta 3", Genre.MALE, "País 2", LocalDate.of(2000, 1, 1)));
-		listaAtletas.add(new Athlete(4444444, "Atleta 4", Genre.MALE, "País 3", LocalDate.of(2000, 1, 1)));
-		listaAtletas.add(new Athlete(5555555, "Atleta 5", Genre.MALE, "País 3", LocalDate.of(2000, 1, 1)));
+		listaAtletas.add(new Athlete(1111111, "Apellido 1, Atleta 1", Genre.FEMALE, "Pais 1", LocalDate.of(2300, 1, 21)));
+		listaAtletas.add(new Athlete(2222222, "Apellido 2, Atleta 2", Genre.MALE, "Pais 2", LocalDate.of(2000, 1, 1)));
+		listaAtletas.add(new Athlete(3333333, "Apellido 3, Atleta 3", Genre.MALE, "Pais 2", LocalDate.of(2000, 1, 1)));
+		listaAtletas.add(new Athlete(4444444, "Apellido 4, Atleta 4", Genre.MALE, "Pais 3", LocalDate.of(2000, 1, 1)));
+		listaAtletas.add(new Athlete(5555555, "Apellido 5, Atleta 5", Genre.MALE, "Pais 3", LocalDate.of(2000, 1, 1)));
 		
 		// Creamos el modelo para la JList
 		
@@ -148,8 +149,39 @@ public class MainWindow extends JFrame {
 		panelAtletas.setPreferredSize(new Dimension(200, getHeight()));
 		
 		// Añadimos el ScrollPane a la ventana principal de nuevo porque hemos comentado toda esta parte del ejercicio GUI.2
-	
+		
 		add(panelAtletas, BorderLayout.WEST);
+		
+		// GUI.6 Creación de renderer para la JList
+		
+		jListAtletas.setCellRenderer(new AthleteListCellRenderer());
+		
+		// GUI.7 y 8 en AthleteFormPanel (prueba de funcionamiento en esa misma clase)
+		
+		// GUI.9 Añadir el formulario creado a la ventana principal
+		
+		ArrayList<String> listaPaises = new ArrayList<String>();
+		
+		for (Athlete atleta : listaAtletas) {
+			if (!listaPaises.contains(atleta.getCountry())) {
+				listaPaises.add(atleta.getCountry());
+			}
+		}
+		
+		AthleteFormPanel formulario = new AthleteFormPanel(listaPaises);
+		
+		panelDatos.add(formulario);
+		
+		// Añadir datos al formulario dependiendo del atleta seleccionado
+		
+		jListAtletas.addListSelectionListener(new ListSelectionListener() {
+			
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				formulario.setAthlete(jListAtletas.getSelectedValue());
+			}
+			
+		});
 		
 		setVisible(true);
 		
