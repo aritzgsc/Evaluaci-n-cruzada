@@ -1,17 +1,21 @@
 package gui.main;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.time.LocalDate;
+import java.awt.Font;
+import java.awt.event.*;
+
+import java.time.*;
+import java.time.format.*;
 import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
+
+import org.jdatepicker.JDatePicker;
 
 import domain.Athlete;
 import domain.Athlete.Genre;
@@ -295,7 +299,7 @@ public class MainWindow extends JFrame {
 		medallasPorAtleta.put(atleta4, medallasAtleta4);
 		medallasPorAtleta.put(atleta5, medallasAtleta5);
 		
-		class ModeloTablaMedallas extends AbstractTableModel {
+		class MedalsTableModel extends AbstractTableModel {
 			
 			private static final long serialVersionUID = 1L;
 
@@ -333,9 +337,47 @@ public class MainWindow extends JFrame {
 				}
 			}
 
+			@Override
+			public Class<?> getColumnClass(int column) {
+				switch (column) {
+				case 0: return Metal.class;
+				case 1: return LocalDate.class;
+				case 2: return String.class;
+
+				default: return null;
+				}
+			}
+
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				return true;
+			}
+
+			// GUI.14 Editor de la tabla
+			
+			@Override
+			public void setValueAt(Object value, int row, int column) {
+				Medal medalla = medallasMostradas.get(row);
+				
+				if (column == 0) {
+					
+					medalla.setMetal((Metal) value);
+					
+				} else if (column == 1) {
+					
+					medalla.setDate((LocalDate) value);
+					
+				} else if (column == 2) {
+					
+					medalla.setDiscipline((String) value);
+					
+				}
+				
+			}
+			
 		}
 		
-		ModeloTablaMedallas modeloTablaMedallas = new ModeloTablaMedallas();
+		MedalsTableModel modeloTablaMedallas = new MedalsTableModel();
 		
 		JTable tablaMedallas = new JTable(modeloTablaMedallas);
 		
@@ -358,6 +400,107 @@ public class MainWindow extends JFrame {
 		JScrollPane panelTablaMedallas = new JScrollPane(tablaMedallas);
 		
 		panelMedallas.add(panelTablaMedallas);
+		
+		// GUI.13 Renderer personalizado de un JTable
+		
+		class MedalTableCellRenderer extends DefaultTableCellRenderer {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+				
+				JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+				
+				if ((Metal) value == Metal.GOLD) {
+					label.setForeground(new Color(0xFFD700));
+				} else if ((Metal) value == Metal.SILVER) {
+					label.setForeground(new Color(0xC0C0C0));
+				} else if ((Metal) value == Metal.BRONZE){
+					label.setForeground(new Color(0xCD7F32));
+				} else {
+					label.setForeground(Color.RED);
+				}
+				
+				label.setFont(getFont().deriveFont(Font.BOLD));
+				
+				return label;
+				
+			}
+			
+		}
+		
+		class DateTableCellRenderer extends DefaultTableCellRenderer {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+				
+				JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+				
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy");
+				label.setText(formatter.format((LocalDate) value));
+				
+				return label;
+				
+			}
+			
+		}
+		
+		tablaMedallas.getColumn("Metal").setCellRenderer(new MedalTableCellRenderer());
+		tablaMedallas.setDefaultRenderer(LocalDate.class, new DateTableCellRenderer());
+		
+		// GUI.14 Edición de la tabla de medallas
+		
+		class MetalTableCellEditor extends AbstractCellEditor implements TableCellEditor {
+			
+			private static final long serialVersionUID = 1L;
+			
+			JComboBox<Metal> metalComboBox = new JComboBox<Metal>(Metal.values());
+			
+			@Override
+			public Object getCellEditorValue() {
+				return metalComboBox.getSelectedItem();
+			}
+
+			@Override
+			public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+				
+				return metalComboBox;
+				
+			}
+			
+		}
+		
+		class DateTableCellEditor extends AbstractCellEditor implements TableCellEditor {
+
+			private static final long serialVersionUID = 1L;
+
+			JDatePicker selectorFecha = new JDatePicker();
+			
+			@Override
+			public Object getCellEditorValue() {
+				GregorianCalendar calendario = (GregorianCalendar) selectorFecha.getModel().getValue();
+				return calendario.toZonedDateTime().toLocalDate();
+			}
+
+			@Override
+			public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+
+				LocalDate currentDate = (LocalDate) value;
+				selectorFecha.getModel().setDate(currentDate.getYear(), currentDate.getMonthValue() - 1, currentDate.getDayOfMonth());
+				selectorFecha.getModel().setSelected(true);
+				
+				selectorFecha.addActionListener((e) -> fireEditingStopped());
+				
+				return selectorFecha;
+			}
+			
+		}
+		
+		tablaMedallas.getColumn("Metal").setCellEditor(new MetalTableCellEditor());
+		tablaMedallas.getColumn("Fecha").setCellEditor(new DateTableCellEditor());
 		
 		setVisible(true);
 		

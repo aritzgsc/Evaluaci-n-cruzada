@@ -64,6 +64,22 @@ public class Medal {
 		return discipline;
 	}
 	
+	public LocalDate getDate() {
+		return date;
+	}
+
+	public void setDate(LocalDate date) {
+		this.date = date;
+	}
+
+	public void setMetal(Metal metal) {
+		this.metal = metal;
+	}
+
+	public void setDiscipline(String discipline) {
+		this.discipline = discipline;
+	}
+
 	@Override
 	public String toString() {
 		return String.format("[%s, %s, %s, %s]", metal, date, athlete.getName(), discipline);
