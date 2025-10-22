@@ -29,6 +29,8 @@ public class AthleteFormPanel extends JPanel {
 	
 	private boolean isEditable = true;
 	
+	private ArrayList<String> errores;
+	
 	public AthleteFormPanel(List<String> paisesList /*GUI.8 Mejora del formulario*/) {
 		
 		// GUI.7 Creación inicial de formulario
@@ -130,7 +132,8 @@ public class AthleteFormPanel extends JPanel {
 		
 		JLabel paisLabel = new JLabel("País");
 		paisComboBox = new JComboBox<String>(paisesList.toArray(new String[0]));	// A partir de GUI.8 recibe otra lista (con el mismo nombre)
-					
+		paisComboBox.setSelectedIndex(-1);		
+		
 		panelPais.add(paisLabel);
 		panelPais.add(paisComboBox);
 		
@@ -170,6 +173,8 @@ public class AthleteFormPanel extends JPanel {
 	}
 	
 	// Creamos la función getAthlete contemplando todas las excepciones posibles
+	// GUI.11 NO modifico esto aqui porque rompería la forma en que funciona el NewAthleteDialog, si introdujera un atleta mal se borraría todo, cosa que no quiero que ocurra
+	// 		  por ello modificaré el ListSelectionListener anterior para que no de error y haré un nuevo método clearSelection al que llamaré tras borrar atletas
 	
 	public Athlete getAthlete() throws FormDataNotValid {
 		
@@ -177,9 +182,9 @@ public class AthleteFormPanel extends JPanel {
 		String nombre = "";
 		Genre genero = Genre.FEMALE;
 		LocalDate fecha = LocalDate.now();
-		String pais = (String) paisComboBox.getSelectedItem();		// No se contemplan posibles excepciones
+		String pais = "";
 		
-		boolean errores = false;
+		errores = new ArrayList<String>();
 		
 		// Condiciones de funcionamiento correcto (código)
 		
@@ -206,8 +211,8 @@ public class AthleteFormPanel extends JPanel {
 			
 		} catch (FormDataNotValid e) {
 			
-			System.err.println(e.getMessage());
-			errores = true;
+//			System.err.println(e.getMessage());		// Muestra por consola
+			errores.add(e.getMessage());		// Actualiza el mensaje de error
 			
 		}
 		
@@ -227,8 +232,8 @@ public class AthleteFormPanel extends JPanel {
 			
 		} catch (FormDataNotValid e) {
 			
-			System.err.println(e.getMessage());
-			errores = true;
+//			System.err.println(e.getMessage());		// Muestra por consola
+			errores.add(e.getMessage());		// Actualiza el mensaje de error
 			
 		}
 		
@@ -248,8 +253,8 @@ public class AthleteFormPanel extends JPanel {
 			
 		} catch (FormDataNotValid e) {
 			
-			System.err.println(e.getMessage());
-			errores = true;
+//			System.err.println(e.getMessage());		// Muestra por consola
+			errores.add(e.getMessage());		// Actualiza el mensaje de error
 			
 		}
 		
@@ -277,14 +282,33 @@ public class AthleteFormPanel extends JPanel {
 			
 		} catch (FormDataNotValid e) {
 
-			System.err.println(e.getMessage());
-			errores = true;
+//			System.err.println(e.getMessage());		// Muestra por consola
+			errores.add(e.getMessage());		// Actualiza el mensaje de error
 			
 		}
 		
-		if (errores) {
+		try {
 			
-			return null;
+			if (paisComboBox.getSelectedIndex() != -1) {
+				
+				pais = (String) paisComboBox.getSelectedItem();
+				
+			} else {
+				
+				throw new FormDataNotValid("Debe seleccionar un país");
+				
+			}
+			
+		} catch (Exception e) {
+
+//			System.err.println(e.getMessage());		// Muestra por consola
+			errores.add(e.getMessage());		// Actualiza el mensaje de error
+			
+		}
+		
+		if (!errores.isEmpty()) {
+			
+			throw new FormDataNotValid("");
 			
 		} else {
 			
@@ -311,6 +335,20 @@ public class AthleteFormPanel extends JPanel {
 		return isEditable;
 	}
 	
+	public ArrayList<String> getErrores() {
+		return errores;
+	}
+	
+	// GUI.11 Para evitar romper algo de NewAthleteDialog creamos esta función y la llamamos desde la MainWindow tras eliminar atletas
+	
+	public void clearSelection() {
+		codigoFTF.setText("");
+		nombreTF.setText("");
+		generoBG.clearSelection();
+		fechaFTF.setText("");
+		paisComboBox.setSelectedIndex(-1);
+	}
+	
 	// Prueba de panel y funcionalidades
 	
 	public static void main(String[] args) {
@@ -318,7 +356,7 @@ public class AthleteFormPanel extends JPanel {
 		JFrame ventanaPrueba = new JFrame();
 		
 		ventanaPrueba.setTitle("Ventana de prueba");
-		ventanaPrueba.setSize(480, 300);
+		ventanaPrueba.setSize(480, 320);
 		ventanaPrueba.setLocationRelativeTo(null);
 		
 		List<String> paisesList = new ArrayList<String>();							
@@ -338,7 +376,14 @@ public class AthleteFormPanel extends JPanel {
 			try {
 				System.out.println(panelFormulario.getAthlete());
 			} catch (FormDataNotValid e1) {
-				e1.printStackTrace();
+				JPanel panelErrores = new JPanel();
+				panelErrores.setLayout(new BoxLayout(panelErrores, BoxLayout.Y_AXIS));
+				for (String error : panelFormulario.getErrores()) {
+					JLabel errorL = new JLabel("- " + error);
+					errorL.setBorder(new EmptyBorder(5, 5, 5, 5));
+					panelErrores.add(errorL);
+				}
+				JOptionPane.showMessageDialog(ventanaPrueba, panelErrores, "Error al crear atleta", JOptionPane.ERROR_MESSAGE);
 			}
 		});
 		
