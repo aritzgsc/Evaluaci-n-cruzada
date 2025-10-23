@@ -147,10 +147,27 @@ public class AthleteFormPanel extends JPanel {
 				
 				JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 				
+				if (value == null) {
+					return label;
+				}
+				
+				String paisCodigoISO = "";
+				
+				if (CountryCodes.COUNTRY_ISO_CODES.containsKey((String) value)) {
+					paisCodigoISO = CountryCodes.COUNTRY_ISO_CODES.get((String) value);
+				} else {
+					try {
+						label.setIcon(IconLoader.getIcon("/images/error.png"));
+					} catch (IconLoadingException e) {
+						e.printStackTrace();
+					}
+					return label;
+				}
+				
 				try {
-					label.setIcon(IconLoader.getIcon("/resources/images/flags/" + CountryCodes.COUNTRY_ISO_CODES.get((String) value).toLowerCase() + ".png"));
+					label.setIcon(IconLoader.getIcon("/images/flags/" + paisCodigoISO.toLowerCase() + ".png"));
 				} catch (IconLoadingException e) {
-					label.setIcon(new ImageIcon("/resources/images/error.png"));	// Ponemos imagen de error (descargada aparte)
+					e.printStackTrace();
 				}
 				
 				return label;
@@ -389,6 +406,8 @@ public class AthleteFormPanel extends JPanel {
 		paisesList.add("Pais 1");													
 		paisesList.add("Pais 2");													
 		paisesList.add("Pais 3");													
+		paisesList.add("Pais 4");													
+		paisesList.add("Pais 5");													
 		
 		AthleteFormPanel panelFormulario = new AthleteFormPanel(paisesList);
 		

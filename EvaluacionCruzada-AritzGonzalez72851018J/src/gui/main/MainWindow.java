@@ -132,9 +132,9 @@ public class MainWindow extends JFrame {
 		
 		Athlete atleta1 = new Athlete(1111111, "Apellido 1, Atleta 1", Genre.FEMALE, "Pais 1", LocalDate.of(2006, 1, 11));
 		Athlete atleta2 = new Athlete(2222222, "Apellido 2, Atleta 2", Genre.MALE, "Pais 2", LocalDate.of(2000, 1, 1));
-		Athlete atleta3 = new Athlete(3333333, "Apellido 3, Atleta 3", Genre.MALE, "Pais 2", LocalDate.of(2000, 1, 1));
-		Athlete atleta4 = new Athlete(4444444, "Apellido 4, Atleta 4", Genre.MALE, "Pais 3", LocalDate.of(2000, 1, 1));
-		Athlete atleta5 = new Athlete(5555555, "Apellido 5, Atleta 5", Genre.MALE, "Pais 3", LocalDate.of(2000, 1, 1));
+		Athlete atleta3 = new Athlete(3333333, "Apellido 3, Atleta 3", Genre.MALE, "Pais 3", LocalDate.of(2000, 1, 1));
+		Athlete atleta4 = new Athlete(4444444, "Apellido 4, Atleta 4", Genre.MALE, "Pais 4", LocalDate.of(2000, 1, 1));
+		Athlete atleta5 = new Athlete(5555555, "Apellido 5, Atleta 5", Genre.MALE, "Pais 5", LocalDate.of(2000, 1, 1));
 		
 		listaAtletas.add(atleta1);
 		listaAtletas.add(atleta2);

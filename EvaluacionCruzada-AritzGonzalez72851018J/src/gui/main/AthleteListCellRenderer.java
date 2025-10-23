@@ -27,12 +27,29 @@ public class AthleteListCellRenderer extends DefaultListCellRenderer {
 		
 		// Añadimos el atributo apellido a los atletas para poder tenerlo
 		
+		if (value == null) {
+			return label;
+		}
+		
 		label.setText(setHighLightedText(((Athlete) value).getName()));			// GUI.16 Llamamos a setHighlightedText cada vez que se actualice algún valor
 		
+		String paisCodigoISO = "";
+		
+		if (CountryCodes.COUNTRY_ISO_CODES.containsKey(((Athlete) value).getCountry())) {
+			paisCodigoISO = CountryCodes.COUNTRY_ISO_CODES.get(((Athlete) value).getCountry());
+		} else {
+			try {
+				label.setIcon(IconLoader.getIcon("/images/error.png"));
+			} catch (IconLoadingException e) {
+				e.printStackTrace();
+			}
+			return label;
+		}
+		
 		try {
-			label.setIcon(IconLoader.getIcon("/resources/images/flags/" + CountryCodes.COUNTRY_ISO_CODES.get(((Athlete) value).getCountry()).toLowerCase() + ".png"));
+			label.setIcon(IconLoader.getIcon("/images/flags/" + paisCodigoISO.toLowerCase() + ".png"));
 		} catch (IconLoadingException e) {
-			label.setIcon(new ImageIcon("/resources/images/error.png"));	// Ponemos imagen de error (descargada aparte)
+			e.printStackTrace();
 		}
 		
 		return label;
