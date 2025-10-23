@@ -1,21 +1,15 @@
 package gui.main;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.event.*;
 
 import java.time.*;
-import java.time.format.*;
 import java.util.*;
+import java.util.function.Predicate;
 
 import javax.swing.*;
 import javax.swing.event.*;
-import javax.swing.table.*;
-
-import org.jdatepicker.JDatePicker;
 
 import domain.Athlete;
 import domain.Athlete.Genre;
@@ -150,13 +144,18 @@ public class MainWindow extends JFrame {
 		
 		// Creamos el modelo para la JList
 		
-		DefaultListModel<Athlete> modeloListaAtletas = new DefaultListModel<Athlete>();
+//		DefaultListModel<Athlete> modeloListaAtletas = new DefaultListModel<Athlete>();						// Comentado por GUI.16 (Cambiamos el modelo)
 		
-		for (Athlete athlete : listaAtletas) {
-			modeloListaAtletas.addElement(athlete);
-		}
+		FilterListModel<Athlete> modeloListaAtletas = new FilterListModel<Athlete>();						// Nuevo Modelo GUI.16 - Le ponemos el mismo nombre para no tener que modificar los listeners	
+		
+		for (Athlete athlete : listaAtletas) {																// Comentado por GUI.16 (Cambiamos el modelo)
+			modeloListaAtletas.addElement(athlete);															// Comentado por GUI.16 (Cambiamos el modelo)
+		}																									// Comentado por GUI.16 (Cambiamos el modelo)
+			
+//		FilterListModel<Athlete> modeloListaAtletas = new FilterListModel<Athlete>(listaAtletas);	// Nuevo Modelo GUI.16 - Le ponemos el mismo nombre para no tener que modificar los listeners
 		
 		// Creamos JList y le pasamos la lista creada
+		
 		
 		JList<Athlete> jListAtletas = new JList<Athlete>(modeloListaAtletas);
 		
@@ -196,6 +195,8 @@ public class MainWindow extends JFrame {
 			public void valueChanged(ListSelectionEvent e) {
 				if (jListAtletas.getSelectedValue() != null) {
 					formulario.setAthlete(jListAtletas.getSelectedValue());
+				} else {
+					formulario.clearSelection();
 				}
 			}
 			
@@ -233,14 +234,14 @@ public class MainWindow extends JFrame {
 		botonEliminar.addActionListener((e) -> {
 			List<Athlete> atletasSeleccionados = jListAtletas.getSelectedValuesList();
 			
-			int respuesta = JOptionPane.showConfirmDialog(this, "¿Estás seguro de que quieres eliminar " + atletasSeleccionados.size() + " atletas seleccionados?", "Eliminar atletas", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+			int respuesta = JOptionPane.showConfirmDialog(mainWindow, "¿Estás seguro de que quieres eliminar " + atletasSeleccionados.size() + " atletas seleccionados?", "Eliminar atletas", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 			
 			if (respuesta == JOptionPane.YES_OPTION) {
 				for (Athlete atleta : atletasSeleccionados) {
 					modeloListaAtletas.removeElement(atleta);
 				}
 			}
-			formulario.clearSelection();
+			
 		});
 		
 		jListAtletas.addListSelectionListener(new ListSelectionListener() {
@@ -299,84 +300,6 @@ public class MainWindow extends JFrame {
 		medallasPorAtleta.put(atleta4, medallasAtleta4);
 		medallasPorAtleta.put(atleta5, medallasAtleta5);
 		
-		class MedalsTableModel extends AbstractTableModel {
-			
-			private static final long serialVersionUID = 1L;
-
-			private List<Medal> medallasMostradas = new ArrayList<Medal>();
-			private String[] cabeceras = {"Metal", "Fecha", "Disciplina"};
-			
-			public void updateMedals(List<Medal> nuevasMedallasMostradas) {
-				medallasMostradas = nuevasMedallasMostradas;
-				fireTableDataChanged();
-			}
-			
-			@Override
-			public int getRowCount() {
-				return medallasMostradas.size();
-			}
-
-			@Override
-			public int getColumnCount() {
-				return 3;
-			}
-
-			@Override
-			public String getColumnName(int index) {
-				return cabeceras[index];
-			}
-			
-			@Override
-			public Object getValueAt(int row, int column) {
-				switch (column) {
-				case 0: return medallasMostradas.get(row).getMetal();
-				case 1: return medallasMostradas.get(row).getMedalDate();
-				case 2: return medallasMostradas.get(row).getDiscipline();
-
-				default: return null; 
-				}
-			}
-
-			@Override
-			public Class<?> getColumnClass(int column) {
-				switch (column) {
-				case 0: return Metal.class;
-				case 1: return LocalDate.class;
-				case 2: return String.class;
-
-				default: return null;
-				}
-			}
-
-			@Override
-			public boolean isCellEditable(int row, int column) {
-				return true;
-			}
-
-			// GUI.14 Editor de la tabla
-			
-			@Override
-			public void setValueAt(Object value, int row, int column) {
-				Medal medalla = medallasMostradas.get(row);
-				
-				if (column == 0) {
-					
-					medalla.setMetal((Metal) value);
-					
-				} else if (column == 1) {
-					
-					medalla.setDate((LocalDate) value);
-					
-				} else if (column == 2) {
-					
-					medalla.setDiscipline((String) value);
-					
-				}
-				
-			}
-			
-		}
-		
 		MedalsTableModel modeloTablaMedallas = new MedalsTableModel();
 		
 		JTable tablaMedallas = new JTable(modeloTablaMedallas);
@@ -391,7 +314,12 @@ public class MainWindow extends JFrame {
 				if (jListAtletas.getSelectedValue() != null) {
 					if (medallasPorAtleta.get(jListAtletas.getSelectedValue()) != null) {
 						modeloTablaMedallas.updateMedals(medallasPorAtleta.get(jListAtletas.getSelectedValue()));
+					} else {
+						medallasPorAtleta.put(jListAtletas.getSelectedValue(), new ArrayList<Medal>());
+						modeloTablaMedallas.updateMedals(medallasPorAtleta.get(jListAtletas.getSelectedValue()));
 					}
+				} else {
+					modeloTablaMedallas.updateMedals(new ArrayList<Medal>());
 				}
 			}
 			
@@ -400,107 +328,113 @@ public class MainWindow extends JFrame {
 		JScrollPane panelTablaMedallas = new JScrollPane(tablaMedallas);
 		
 		panelMedallas.add(panelTablaMedallas);
-		
-		// GUI.13 Renderer personalizado de un JTable
-		
-		class MedalTableCellRenderer extends DefaultTableCellRenderer {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-				
-				JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-				
-				if ((Metal) value == Metal.GOLD) {
-					label.setForeground(new Color(0xFFD700));
-				} else if ((Metal) value == Metal.SILVER) {
-					label.setForeground(new Color(0xC0C0C0));
-				} else if ((Metal) value == Metal.BRONZE){
-					label.setForeground(new Color(0xCD7F32));
-				} else {
-					label.setForeground(Color.RED);
-				}
-				
-				label.setFont(getFont().deriveFont(Font.BOLD));
-				
-				return label;
-				
-			}
-			
-		}
-		
-		class DateTableCellRenderer extends DefaultTableCellRenderer {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-				
-				JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-				
-				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy");
-				label.setText(formatter.format((LocalDate) value));
-				
-				return label;
-				
-			}
-			
-		}
+	
+		// GUI.13 Añadir TableCellRenderers a la tabla
 		
 		tablaMedallas.getColumn("Metal").setCellRenderer(new MedalTableCellRenderer());
 		tablaMedallas.setDefaultRenderer(LocalDate.class, new DateTableCellRenderer());
 		
-		// GUI.14 Edición de la tabla de medallas
-		
-		class MetalTableCellEditor extends AbstractCellEditor implements TableCellEditor {
-			
-			private static final long serialVersionUID = 1L;
-			
-			JComboBox<Metal> metalComboBox = new JComboBox<Metal>(Metal.values());
-			
-			@Override
-			public Object getCellEditorValue() {
-				return metalComboBox.getSelectedItem();
-			}
-
-			@Override
-			public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-				
-				return metalComboBox;
-				
-			}
-			
-		}
-		
-		class DateTableCellEditor extends AbstractCellEditor implements TableCellEditor {
-
-			private static final long serialVersionUID = 1L;
-
-			JDatePicker selectorFecha = new JDatePicker();
-			
-			@Override
-			public Object getCellEditorValue() {
-				GregorianCalendar calendario = (GregorianCalendar) selectorFecha.getModel().getValue();
-				return calendario.toZonedDateTime().toLocalDate();
-			}
-
-			@Override
-			public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-
-				LocalDate currentDate = (LocalDate) value;
-				selectorFecha.getModel().setDate(currentDate.getYear(), currentDate.getMonthValue() - 1, currentDate.getDayOfMonth());
-				selectorFecha.getModel().setSelected(true);
-				
-				selectorFecha.addActionListener((e) -> fireEditingStopped());
-				
-				return selectorFecha;
-			}
-			
-		}
+		// GUI.14 Añadir editores a tabla de medallas
 		
 		tablaMedallas.getColumn("Metal").setCellEditor(new MetalTableCellEditor());
 		tablaMedallas.getColumn("Fecha").setCellEditor(new DateTableCellEditor());
+		
+		// GUI.15 Añadiendo algunos eventos de teclado
+		
+		jListAtletas.addKeyListener(new KeyAdapter() {
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+
+				if (e.getKeyCode() == KeyEvent.VK_DELETE && jListAtletas.getSelectedIndices().length > 0) {
+					
+					List<Athlete> atletasSeleccionados = jListAtletas.getSelectedValuesList();
+					
+					int respuesta = JOptionPane.showConfirmDialog(mainWindow, "¿Estás seguro de que quieres eliminar " + atletasSeleccionados.size() + " atletas seleccionados?", "Eliminar atletas", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+					
+					if (respuesta == JOptionPane.YES_OPTION) {
+						for (Athlete atleta : atletasSeleccionados) {
+							modeloListaAtletas.removeElement(atleta);
+						}
+					}
+					
+				}
+				
+				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_M && jListAtletas.getSelectedValue() != null) {
+					
+					panelTabs.setSelectedComponent(panelMedallas);
+					
+					List<Medal> medallasAtletaSeleccionado = medallasPorAtleta.get(jListAtletas.getSelectedValue());
+					medallasAtletaSeleccionado.add(new Medal(Metal.BRONZE, LocalDate.now(), jListAtletas.getSelectedValue(), "Default discipline"));		// Añadimos una medalla por defecto
+					
+					modeloTablaMedallas.updateMedals(medallasAtletaSeleccionado);
+					
+					tablaMedallas.setRowSelectionInterval(medallasAtletaSeleccionado.size() - 1, medallasAtletaSeleccionado.size() - 1);
+					tablaMedallas.editCellAt(medallasAtletaSeleccionado.size() - 1, 0);
+					
+				}
+				
+				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_A) {
+					
+					int respuesta = NewAthleteDialog.showDialog(mainWindow);
+					
+					if (respuesta == JOptionPane.OK_OPTION) {
+						modeloListaAtletas.addElement(NewAthleteDialog.getAthlete());		// Se añade el último atleta creado correctamente
+					}
+					
+				}
+				
+				if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+					
+					jListAtletas.clearSelection();
+					
+				}
+				
+			}
+			
+		});
+		
+		// GUI.16 Aplicando un filtro para la lista
+		
+		JTextField filtro = new JTextField();
+		
+		panelAtletasFunc.add(filtro, BorderLayout.NORTH);
+		
+		// Comentamos arriba el modelo viejo y creamos el modelo nuevo arriba también para no tener que reescribir todos los listeners para el nuevo modelo (no podemos modificarlos con jListAtletas.getModel()... porque no todos los ListModels tienen los mismos métodos)
+		
+		filtro.getDocument().addDocumentListener(new DocumentListener() {
+			
+			public void filtrar() {
+				String textoFiltro = filtro.getText().toLowerCase();
+				Predicate<Athlete> predicado = atleta -> atleta.getName().toLowerCase().contains(textoFiltro);			// Test
+//				Predicate<Athlete> predicado = new Predicate<Athlete>() {
+//					
+//					@Override
+//					public boolean test(Athlete atleta) {
+//						return atleta.getName().toLowerCase().contains(textoFiltro);
+//					}
+//					
+//				};
+				modeloListaAtletas.setFilter(predicado);
+				((AthleteListCellRenderer) jListAtletas.getCellRenderer()).setTextoFiltro(textoFiltro);
+			}
+			
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				filtrar();
+			}
+			
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				filtrar();
+			}
+			
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				filtrar();
+			}
+			
+		});
 		
 		setVisible(true);
 		

@@ -11,6 +11,12 @@ public class AthleteListCellRenderer extends DefaultListCellRenderer {
 
 	private static final long serialVersionUID = 1L;
 
+	String textoFiltro = "";
+	
+	public void setTextoFiltro(String textoFiltro) {
+		this.textoFiltro = textoFiltro;
+	}
+	
 	@Override
 	public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 		
@@ -18,12 +24,53 @@ public class AthleteListCellRenderer extends DefaultListCellRenderer {
 		
 		// Añadimos el atributo apellido a los atletas para poder tenerlo
 		
-		label.setText(((Athlete) value).getName());
+		label.setText(setHighLightedText(((Athlete) value).getName()));			// GUI.16 Llamamos a setHighlightedText cada vez que se actualice algún valor
 		
 		return label;
 		
 	}
 
+	// GUI.16 Subrayar texto
 	
+	public String setHighLightedText(String nombreAtleta) {
+		
+		if (!textoFiltro.isBlank() && nombreAtleta.toLowerCase().contains(textoFiltro.toLowerCase())) {
+			
+//			String resultado = nombreAtleta.replaceAll("(?i)(" + textoFiltro + ")", "<span style='background-color: yellow;'>$1</span>");		// Se podría hacer con REGEX de esta forma (?i) para decir que sea case-insensitive y el $1 para hacer referencia a lo que capture el primer grupo
+            
+			// Forma de hacerlo sin utilizar REGEX
+			
+			String resultado = "";
+			String[] partes = nombreAtleta.toLowerCase().split(textoFiltro.toLowerCase());
+			
+			int contadorLetras = 0;
+			
+			for (int i = 0; i < partes.length ; i++) {
+
+				String parte = partes[i];
+				
+				resultado += nombreAtleta.substring(contadorLetras, contadorLetras + parte.length());
+				
+				contadorLetras += parte.length();
+				
+				if (contadorLetras + textoFiltro.length() <= nombreAtleta.length()) {
+					
+					resultado += "<span style='background-color: yellow;'>" + nombreAtleta.substring(contadorLetras, contadorLetras + textoFiltro.length()) + "</span>";
+					contadorLetras += textoFiltro.length();
+					
+				}
+				
+			}
+			
+			
+            return "<html>" + resultado + "</html>";
+            
+        } else {
+            
+        	return nombreAtleta;
+        	
+        }
+		
+	}
 	
 }
