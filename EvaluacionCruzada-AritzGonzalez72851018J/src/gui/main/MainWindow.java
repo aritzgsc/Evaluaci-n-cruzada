@@ -60,12 +60,12 @@ public class MainWindow extends JFrame {
 		// Creación de los paneles a añadir
 		
 		JPanel panelDatos = new JPanel(new BorderLayout());					// Ponemos BorderLayout por el GUI.9
-		JPanel panelMedallas = new JPanel(new BorderLayout());
+//		JPanel panelMedallas = new JPanel(new BorderLayout());				// COMENTADO POR GUI.17
 		
 		// Añadimos los paneles al JTabbedPane
 		
 		panelTabs.addTab("Datos", panelDatos);
-		panelTabs.addTab("Medallas", panelMedallas);
+//		panelTabs.addTab("Medallas", panelMedallas);						// COMENTADO POR GUI.17
 		
 //		add(panelLista, BorderLayout.WEST);									// COMENTADO POR GUI.5
 		add(panelTabs, BorderLayout.CENTER);
@@ -270,26 +270,26 @@ public class MainWindow extends JFrame {
 		Map<Athlete, List<Medal>> medallasPorAtleta = new HashMap<Athlete, List<Medal>>();
 		
 		List<Medal> medallasAtleta1 = new ArrayList<Medal>(Arrays.asList(
-				new Medal(Metal.BRONZE, LocalDate.of(2024, 5, 20), atleta1, "Disciplina1"),
-				new Medal(Metal.SILVER, LocalDate.of(2023, 5, 20), atleta1, "Disciplina1"),
-				new Medal(Metal.BRONZE, LocalDate.of(2022, 5, 20), atleta1, "Disciplina1")
+				new Medal(Metal.BRONZE, LocalDate.of(2024, 5, 20), atleta1, "Disciplina 1"),
+				new Medal(Metal.SILVER, LocalDate.of(2023, 5, 20), atleta1, "Disciplina 1"),
+				new Medal(Metal.BRONZE, LocalDate.of(2022, 5, 20), atleta1, "Disciplina 1")
 				));
 		
 		List<Medal> medallasAtleta2 = new ArrayList<Medal>(Arrays.asList(
-				new Medal(Metal.GOLD, LocalDate.of(2024, 5, 20), atleta2, "Disciplina1"),
-				new Medal(Metal.GOLD, LocalDate.of(2023, 5, 20), atleta2, "Disciplina1"),
-				new Medal(Metal.SILVER, LocalDate.of(2022, 5, 20), atleta2, "Disciplina1")
+				new Medal(Metal.GOLD, LocalDate.of(2024, 5, 20), atleta2, "Disciplina 1"),
+				new Medal(Metal.GOLD, LocalDate.of(2023, 5, 20), atleta2, "Disciplina 1"),
+				new Medal(Metal.SILVER, LocalDate.of(2022, 5, 20), atleta2, "Disciplina 1")
 			)) ;
 		
 		List<Medal> medallasAtleta3 = new ArrayList<Medal>(Arrays.asList(
-				new Medal(Metal.SILVER, LocalDate.of(2024, 5, 20), atleta3, "Disciplina1"),
-				new Medal(Metal.SILVER, LocalDate.of(2023, 5, 20), atleta3, "Disciplina2"),
-				new Medal(Metal.BRONZE, LocalDate.of(2022, 5, 20), atleta3, "Disciplina2")
+				new Medal(Metal.SILVER, LocalDate.of(2024, 5, 20), atleta3, "Disciplina 1"),
+				new Medal(Metal.SILVER, LocalDate.of(2023, 5, 20), atleta3, "Disciplina 2"),
+				new Medal(Metal.BRONZE, LocalDate.of(2022, 5, 20), atleta3, "Disciplina 2")
 			)) ;
 		
 		List<Medal> medallasAtleta4 = new ArrayList<Medal>(Arrays.asList(
-				new Medal(Metal.BRONZE, LocalDate.of(2024, 5, 20), atleta1, "Disciplina2"),
-				new Medal(Metal.SILVER, LocalDate.of(2023, 5, 20), atleta1, "Disciplina3")
+				new Medal(Metal.BRONZE, LocalDate.of(2024, 5, 20), atleta1, "Disciplina 2"),
+				new Medal(Metal.SILVER, LocalDate.of(2023, 5, 20), atleta1, "Disciplina 3")
 			)) ;
 		
 		List<Medal> medallasAtleta5 = new ArrayList<Medal>();
@@ -327,7 +327,7 @@ public class MainWindow extends JFrame {
 		
 		JScrollPane panelTablaMedallas = new JScrollPane(tablaMedallas);
 		
-		panelMedallas.add(panelTablaMedallas);
+//		panelMedallas.add(panelTablaMedallas);							// COMENTADO POR GUI.17
 	
 		// GUI.13 Añadir TableCellRenderers a la tabla
 		
@@ -362,7 +362,7 @@ public class MainWindow extends JFrame {
 				
 				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_M && jListAtletas.getSelectedValue() != null) {
 					
-					panelTabs.setSelectedComponent(panelMedallas);
+					panelTabs.setSelectedIndex(1);
 					
 					List<Medal> medallasAtletaSeleccionado = medallasPorAtleta.get(jListAtletas.getSelectedValue());
 					medallasAtletaSeleccionado.add(new Medal(Metal.BRONZE, LocalDate.now(), jListAtletas.getSelectedValue(), "Default discipline"));		// Añadimos una medalla por defecto
@@ -435,6 +435,56 @@ public class MainWindow extends JFrame {
 			}
 			
 		});
+		
+		// GUI.17 Eventos de ratón para la tabla
+		
+		// Comentamos arriba toda la configuración del panel medallas y creamos un nuevo JSplitPane para sustituirlo
+		
+		JSplitPane panelMedallasDividido = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		panelMedallasDividido.setDividerSize(1);
+		panelMedallasDividido.setDividerLocation((int) (getHeight() / 2.25));
+		
+		// Creamos un nuevo JEditorPane que pondremos en la parte de abajo del nuevo panel (que recibe texto en formato HTML)
+		
+		JEditorPane panelTextoDisciplina = new JEditorPane("text/html", "");
+		
+		// Creamos un mapa provisional de las disciplinas y sus descripciones
+		
+		Map<String, String> textoPorDisciplina = new HashMap<String, String>();
+		
+		textoPorDisciplina.put("Disciplina 1", "<html><h1>Descripción de Disciplina 1\n</h1>Descripción de disciplina 1</html>");
+		textoPorDisciplina.put("Disciplina 2", "<html><h1>Descripción de Disciplina 2\n</h1>Descripción de disciplina 2</html>");
+		textoPorDisciplina.put("Disciplina 3", "<html><h1>Descripción de Disciplina 3\n</h1>Descripción de disciplina 3</html>");
+		
+		tablaMedallas.addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+
+				if (tablaMedallas.getSelectedColumn() == tablaMedallas.getColumn("Disciplina").getModelIndex()) {
+					
+					if (textoPorDisciplina.get(tablaMedallas.getValueAt(tablaMedallas.getSelectedRow(), tablaMedallas.getSelectedColumn())) != null) {
+					
+						panelTextoDisciplina.setText(textoPorDisciplina.get(tablaMedallas.getValueAt(tablaMedallas.getSelectedRow(), tablaMedallas.getSelectedColumn())));
+					} else {
+						
+						panelTextoDisciplina.setText("<html><h1>No se ha podido encontrar el contenido</h1></html>");
+						
+					}
+				} else {
+					
+					panelTextoDisciplina.setText("");
+					
+				}
+				
+			}
+			
+		});
+		
+		panelMedallasDividido.setTopComponent(panelTablaMedallas);
+		panelMedallasDividido.setBottomComponent(panelTextoDisciplina);
+		
+		panelTabs.addTab("Medallas", panelMedallasDividido);
 		
 		setVisible(true);
 		

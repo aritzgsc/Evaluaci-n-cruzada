@@ -2,6 +2,7 @@ package gui.main;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.text.*;
 import java.time.*;
@@ -13,6 +14,9 @@ import javax.swing.text.*;
 
 import domain.Athlete;
 import domain.Athlete.Genre;
+import gui.util.CountryCodes;
+import gui.util.IconLoader;
+import gui.util.IconLoadingException;
 
 
 public class AthleteFormPanel extends JPanel {
@@ -133,6 +137,27 @@ public class AthleteFormPanel extends JPanel {
 		JLabel paisLabel = new JLabel("País");
 		paisComboBox = new JComboBox<String>(paisesList.toArray(new String[0]));	// A partir de GUI.8 recibe otra lista (con el mismo nombre)
 		paisComboBox.setSelectedIndex(-1);		
+		
+		paisComboBox.setRenderer(new DefaultListCellRenderer() {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+				
+				JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+				
+				try {
+					label.setIcon(IconLoader.getIcon("/resources/images/flags/" + CountryCodes.COUNTRY_ISO_CODES.get((String) value).toLowerCase() + ".png"));
+				} catch (IconLoadingException e) {
+					label.setIcon(new ImageIcon("/resources/images/error.png"));	// Ponemos imagen de error (descargada aparte)
+				}
+				
+				return label;
+				
+			}
+			
+		});
 		
 		panelPais.add(paisLabel);
 		panelPais.add(paisComboBox);

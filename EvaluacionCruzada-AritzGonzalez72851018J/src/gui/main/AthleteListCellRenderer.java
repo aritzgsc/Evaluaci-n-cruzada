@@ -4,6 +4,9 @@ import java.awt.*;
 import javax.swing.*;
 
 import domain.Athlete;
+import gui.util.CountryCodes;
+import gui.util.IconLoader;
+import gui.util.IconLoadingException;
 
 // GUI.6 Creamos la clase AthleteListCellRenderer 
 
@@ -25,6 +28,12 @@ public class AthleteListCellRenderer extends DefaultListCellRenderer {
 		// Añadimos el atributo apellido a los atletas para poder tenerlo
 		
 		label.setText(setHighLightedText(((Athlete) value).getName()));			// GUI.16 Llamamos a setHighlightedText cada vez que se actualice algún valor
+		
+		try {
+			label.setIcon(IconLoader.getIcon("/resources/images/flags/" + CountryCodes.COUNTRY_ISO_CODES.get(((Athlete) value).getCountry()).toLowerCase() + ".png"));
+		} catch (IconLoadingException e) {
+			label.setIcon(new ImageIcon("/resources/images/error.png"));	// Ponemos imagen de error (descargada aparte)
+		}
 		
 		return label;
 		
