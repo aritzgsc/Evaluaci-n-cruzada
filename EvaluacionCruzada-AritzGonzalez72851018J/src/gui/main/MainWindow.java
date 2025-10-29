@@ -97,8 +97,10 @@ public class MainWindow extends JFrame {
 		salir.setMnemonic('S');
 		
 		menuFichero.add(nuevoAtleta);
+		menuFichero.addSeparator();		
 		menuFichero.add(importar);
 		menuFichero.add(exportar);
+		menuFichero.addSeparator();
 		menuFichero.add(salir);
 		
 		// GUI.4 Gestión cierre de ventana
