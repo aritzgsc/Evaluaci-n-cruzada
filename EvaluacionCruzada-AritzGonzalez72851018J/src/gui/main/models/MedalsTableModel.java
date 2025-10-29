@@ -1,4 +1,4 @@
-package gui.main;
+package gui.main.models;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

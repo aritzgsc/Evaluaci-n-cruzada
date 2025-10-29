@@ -1,4 +1,4 @@
-package gui.main;
+package gui.main.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Window;
@@ -8,7 +8,9 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import domain.Athlete;
-import gui.main.AthleteFormPanel.FormDataNotValid;
+import gui.main.MainWindow;
+import gui.main.form.AthleteFormPanel;
+import gui.main.form.FormDataNotValid;
 
 // GUI.10 Creamos la nueva ventana emergente que nos permitirá añadir atletas a la ventana principal
 

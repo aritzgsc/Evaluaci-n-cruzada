@@ -1,4 +1,4 @@
-package gui.main;
+package gui.main.form;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -199,18 +199,6 @@ public class AthleteFormPanel extends JPanel {
 		fechaFTF.setValue(Date.from(atleta.getBirthdate().atStartOfDay(ZoneId.systemDefault()).toInstant()));
 		
 		paisComboBox.setSelectedItem(atleta.getCountry());
-		
-	}
-	
-	// Creamos el nuevo tipo de excepción
-	
-	public class FormDataNotValid extends Exception {
-
-		private static final long serialVersionUID = 1L;
-		
-		public FormDataNotValid(String mensaje) {
-			super(mensaje);
-		}
 		
 	}
 	
