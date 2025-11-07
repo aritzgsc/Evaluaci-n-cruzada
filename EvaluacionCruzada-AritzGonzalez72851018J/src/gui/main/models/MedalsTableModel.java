@@ -28,7 +28,7 @@ public class MedalsTableModel extends AbstractTableModel {
 
 	@Override
 	public int getColumnCount() {
-		return 3;
+		return cabeceras.length;
 	}
 
 	@Override
